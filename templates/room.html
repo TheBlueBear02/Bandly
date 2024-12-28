@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Room {{ room_id }}</title>
+    <link rel="stylesheet" href="../static/room.css">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+
+    <!-- Socket.IO client -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+   
+
+    <script>
+        // Function to toggle the header visibility
+        function toggleHeader() {
+            const header = document.querySelector('.header');
+            header.classList.toggle('closed');
+        }
+    </script>
+
+    <script>
+        let iframeHandled = false; // Flag to prevent re-triggering the function
+
+        function handleEmbed(iframe, originalUrl) {
+            // Check if the URL contains 'ultimate-guitar' and use proxy if true
+            if (originalUrl.includes('ultimate-guitar') && !iframeHandled) {
+                console.log("URL contains 'ultimate-guitar'. Proceeding with embedding.");
+                iframe.src = `/proxy?url=${encodeURIComponent(originalUrl)}`;
+
+                iframeHandled = true;
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <div class="header">
+        <h1>Room: {{ room_id }}</h1>
+        <form method="POST" id="chord-form">
+            <label for="chord_url">Enter Chord URL:</label>
+            <input type="url" name="chord_url" required>
+            <button type="submit">Share</button>
+        </form>
+        
+        <!-- Button to toggle the header -->
+        <button class="header-btn" onclick="toggleHeader()">Toggle Header</button>
+    </div>
+    
+    <div class="content">
+        {% if chord_url %}
+            <iframe
+                id="song-frame"
+                class="song-frame"
+                src="{{ chord_url }}"
+                onload="handleEmbed(this, '{{ chord_url }}')"
+            ></iframe>
+        {% endif %}
+    </div>
+
+
+
+</body>
+</html>

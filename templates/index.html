@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Virtual Band Rooms</title>
+</head>
+<body>
+    <h1>Welcome to the Virtual Band Rooms</h1>
+
+    <!-- Create Room Form -->
+    <h2>Create a New Room</h2>
+    <form action="/create_room" method="POST">
+        <label for="room_id">Enter a Room Name:</label>
+        <input type="text" name="room_id" required>
+        <button type="submit">Create Room</button>
+    </form>
+
+    <!-- Join Existing Room Form -->
+    <h2>Join an Existing Room</h2>
+    <form action="/join_room" method="POST">
+        <label for="room_name">Enter Room Name:</label>
+        <input type="text" name="room_id" required>
+        <button type="submit">Join Room</button>
+    </form>
+
+</body>
+</html>
