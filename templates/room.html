@@ -31,6 +31,67 @@
         }
     </script>
 
+    <!-- Socket.IO client -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+    
+        // Join the room on page load
+        socket.emit('join_room', {'room_id': '{{ room_id }}'});
+    
+        // Listen for iframe updates from the server
+        socket.on('update_iframe', function(data) {
+            console.log("New URL received:", data.new_url);
+    
+            // Find the iframe and update its src attribute
+            const iframe = document.getElementById('song-frame');
+            if (iframe) {
+                iframe.src = data.new_url;  // Update the iframe source
+            }
+        });
+    
+        // Handle URL changes when the form is submitted
+        document.getElementById("chord-form").addEventListener("submit", function(event) {
+            event.preventDefault();  // Prevent default form submission
+            console.log("Url Changed");
+            const chordUrl = document.querySelector("input[name='chord_url']").value;
+
+        });
+    
+        // Optional: Request the user list if you want to display it dynamically
+        socket.emit('get_users', { room_id: '{{ room_id }}' });
+    
+        // Handle the list of users dynamically (if needed)
+        socket.on('user_list', (data) => {
+            const userList = document.getElementById('users');
+            if (data.users.length === 0) {
+                userList.innerHTML = '<li>No users in the room</li>';
+            } else {
+                userList.innerHTML = '';
+                data.users.forEach((user) => {
+                    const li = document.createElement('li');
+                    li.textContent = user;
+                    userList.appendChild(li);
+                });
+            }
+        });
+    </script>
+
+    <script>
+        // Handle URL changes when the form is submitted
+        document.getElementById("chord-form").addEventListener("submit", function(event) {
+            event.preventDefault();  // Prevent default form submission
+
+            const chordUrl = document.querySelector("input[name='chord_url']").value;
+
+            // Emit the url_changed event to notify all users in the room
+            socket.emit('url_changed', {
+                room_id: '{{ room_id }}',
+                new_url: chordUrl
+            });
+        });
+    </script>
+
 </head>
 <body>
     <div class="header">
@@ -40,7 +101,7 @@
             <input type="url" name="chord_url" required>
             <button type="submit">Share</button>
         </form>
-        
+
         <!-- Button to toggle the header -->
         <button class="header-btn" onclick="toggleHeader()">Toggle Header</button>
     </div>
@@ -55,7 +116,12 @@
             ></iframe>
         {% endif %}
     </div>
-
+    <div class="footer">
+        <div id="user-list">
+            <h3>Users in this Room:</h3>
+            <ul id="users"></ul>
+        </div>    
+    </div>
 
 
 </body>
